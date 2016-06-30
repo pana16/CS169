@@ -26,14 +26,17 @@ class HangpersonGame
   
   def guess(letter)
     count = 0
-    @guesses.each_char {|g| return false if letter==g}
-    @wrong_guesses.each_char {|g| return false if letter==g}
-    @word.each_char {|w| count +=1 if w==letter}
+    raise ArgumentError if (letter<=>'')==0
+    raise ArgumentError if (letter<=>nil)==0
+    raise ArgumentError if /[^[:alpha:]]/.match(letter)
+    return false if /[A-Z]/.match(letter)
+    @guesses.each_char {|g| return false if (letter<=>g)==0}
+    @wrong_guesses.each_char {|g| return false if (letter<=>g)==0}
+    @word.each_char {|w| count +=1 if (letter<=>w)==0}
     if count > 0
       @guesses +=letter
     else
       @wrong_guesses +=letter
-      return false if @wrong_guesses.length > 7
     end
     return true
   end
@@ -44,5 +47,22 @@ class HangpersonGame
     end
     return false
   end
-
+  def check_win_or_lose
+    return :lose if @wrong_guesses.length >= 7
+    return :win if @word.length == @guesses.length
+    return :play
+  end
+  def word_with_guesses
+    display = ""
+    @word.each_char do |w|
+      guessed = "-"
+      @guesses.each_char do |g| 
+        if (w<=>g)==0
+          guessed = w
+        end
+      end
+      display += guessed
+    end
+    return display
+  end
 end
